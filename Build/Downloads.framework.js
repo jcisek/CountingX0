@@ -1740,7 +1740,7 @@ function dbg(text) {
   
       var input = document.createElement("input");
       input.type = "file";
-      input.accept = ".mathing,.json,.counting,.counting.json,application/json";
+      input.accept = ".mathing";
       input.style.display = "none";
   
       input.onchange = function(e) {
