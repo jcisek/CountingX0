@@ -117,7 +117,8 @@
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
               }).then((unityInstance) => {
-			  window.unityInstance = unityInstance;
+				window.unityInstance = unityInstance;
+				console.log("Unity instance assigned to window.unityInstance");
 
                 document.querySelector("#unity-loading-bar").style.display = "none";
                 document.querySelector("#unity-fullscreen-button").onclick = () => {
