@@ -1734,37 +1734,45 @@ function dbg(text) {
       }, 0);
     }
 
-  function _CountingX0_OpenFileDialog(gameObjectPtr, methodPtr) {
-      var goName = UTF8ToString(gameObjectPtr);
-      var methodName = UTF8ToString(methodPtr);
+  function _CountingX0_OpenFileDialog(receiverPtr, methodPtr) {
+      const receiver = UTF8ToString(receiverPtr);
+      const method = UTF8ToString(methodPtr);
   
-      var input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".json";
-      input.style.display = "none";
+      try {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json,.txt,application/json,text/plain';
   
-      input.onchange = function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
-  
-        var reader = new FileReader();
-        reader.onload = function() {
-          var text = reader.result;
-          // Send raw JSON text to Unity
-          if (typeof unityInstance !== "undefined") {
-            unityInstance.SendMessage(goName, methodName, text);
-          } else if (typeof SendMessage !== "undefined") {
-            SendMessage(goName, methodName, text);
+        input.onchange = () => {
+          const file = input.files && input.files[0];
+          if (!file) {
+            console.log('[JSLOAD] No file selected');
+            return;
           }
-        };
-        reader.readAsText(file);
-      };
   
-      document.body.appendChild(input);
-      input.click();
-      setTimeout(function() {
-        document.body.removeChild(input);
-      }, 0);
+          const reader = new FileReader();
+          reader.onload = () => {
+            const text = reader.result || '';
+            console.log('[JSLOAD] Read file:', file.name, 'chars:', text.length);
+  
+            // unityInstance is the global created by Unity loader template.
+            // In newer templates it may be Module or createUnityInstance promise output,
+            // but unityInstance is common if you keep Unity�s default index.html.
+            if (typeof unityInstance !== 'undefined' && unityInstance !== null) {
+              unityInstance.SendMessage(receiver, method, text);
+            } else {
+              console.error('[JSLOAD] unityInstance not found. Cannot SendMessage.');
+            }
+          };
+  
+          reader.onerror = (e) => console.error('[JSLOAD] FileReader error', e);
+          reader.readAsText(file);
+        };
+  
+        input.click();
+      } catch (e) {
+        console.error('[JSLOAD] Exception', e);
+      }
     }
 
   function _GetJSLoadTimeInfo(loadTimePtr) {
